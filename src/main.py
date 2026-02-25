@@ -1,7 +1,7 @@
 from textnode import TextNode
+from htmlnode import ParentNode, LeafNode
 
 def main():
-    example = TextNode("this is an example textnode", 'bold', 'this is a url')
-    print(example)
+    pass
 
 main()
