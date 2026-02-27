@@ -1,4 +1,3 @@
-from htmlnode import HTMLNode, text_node_to_html_node
 from textnode import TextNode, TextType
 import re
 
@@ -92,10 +91,3 @@ def text_to_textnodes(text):
     nodes = split_nodes_link(nodes)
     return nodes
 
-def markdown_to_blocks(markdown):
-    split_markdown = markdown.split('\n\n')
-    block_list = []
-    for line in split_markdown:
-        if line != '':
-            block_list.append(line.strip())
-    return block_list
