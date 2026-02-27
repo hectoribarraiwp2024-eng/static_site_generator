@@ -93,5 +93,9 @@ def text_to_textnodes(text):
     return nodes
 
 def markdown_to_blocks(markdown):
-    split_markdown = markdown.split('\n')
-    return split_markdown
+    split_markdown = markdown.split('\n\n')
+    block_list = []
+    for line in split_markdown:
+        if line != '':
+            block_list.append(line.strip())
+    return block_list
