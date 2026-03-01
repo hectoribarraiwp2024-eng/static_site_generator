@@ -42,6 +42,8 @@ class LeafNode(HTMLNode):
             return f'<a {key}="{self.props.get(key)}">{self.value}</a>'
         if self.tag == 'b':
             return f'<b>{self.value}</b>'
+        if self.tag == 'code':
+            return f'<code>{self.value}</code>'
         if self.tag == 'i':
             return f'<i>{self.value}</i>'
         if self.tag == 'div':
