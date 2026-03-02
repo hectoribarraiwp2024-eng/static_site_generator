@@ -1,60 +1,30 @@
 import os
 import shutil
 from markdown_to_htmlnode import markdown_to_html_node
+from pathlib import Path
+import sys
+
+
+dir_path_static = "./static"
+dir_path_docs = "./docs"
+dir_path_content = "./content"
+template_path = "./template.html"
+if sys.argv[0] == None:
+    base_path = '/'
+else:
+    base_path = sys.argv[0]
 
 def main():
-    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-    PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+    print("Deleting public directory...")
+    if os.path.exists(dir_path_docs):
+        shutil.rmtree(dir_path_docs)
 
-    public_path = os.path.join(PROJECT_ROOT, "public")
-    static_path = os.path.join(PROJECT_ROOT, "static")
+    print("Copying static files to public directory...")
+    copy_directory(dir_path_static, dir_path_docs)
 
-    clear_directory(public_path)
-    copy_directory(static_path , public_path)
+    print("Generating content...")
+    generate_pages_recursive(dir_path_content, template_path, dir_path_docs)
 
-    content_path = os.path.join(PROJECT_ROOT, "content/index.md")
-    template_path = os.path.join(PROJECT_ROOT, "template.html")
-    index_path = os.path.join(public_path, "index.html")
-
-    html_content = gernerate_page(content_path, template_path, public_path)
-
-    with open(index_path, "w", encoding="utf-8") as f:
-        f.write(html_content)
-
-    glorfindel_content_path = os.path.join(PROJECT_ROOT, "content/blog/glorfindel/index.md")
-    tom_content_path = os.path.join(PROJECT_ROOT, "content/blog/tom/index.md")
-    majesty_content_path = os.path.join(PROJECT_ROOT, "content/blog/majesty/index.md")
-    contact_content_path = os.path.join(PROJECT_ROOT, "content/contact/index.md")
-
-
-    glorfindel_index_path = os.path.join(public_path, "blog/glorfindel/index.html")
-    os.makedirs(os.path.dirname(glorfindel_index_path), exist_ok=True)
-    tom_index_path = os.path.join(public_path, "blog/tom/index.html")
-    os.makedirs(os.path.dirname(tom_index_path), exist_ok=True)
-    majesty_index_path = os.path.join(public_path, "blog/majesty/index.html")
-    os.makedirs(os.path.dirname(majesty_index_path), exist_ok=True)
-    contact_index_path = os.path.join(public_path, "contact/index.html")
-    os.makedirs(os.path.dirname(contact_index_path), exist_ok=True)
-
-    ghtml_content = gernerate_page(glorfindel_content_path, template_path, public_path)
-
-    with open(glorfindel_index_path, "w", encoding="utf-8") as f:
-        f.write(ghtml_content)
-
-    thtml_content = gernerate_page(tom_content_path, template_path, public_path)
-
-    with open(tom_index_path, "w", encoding="utf-8") as f:
-        f.write(thtml_content)
-
-    mhtml_content = gernerate_page(majesty_content_path, template_path, public_path)
-
-    with open(majesty_index_path, "w", encoding="utf-8") as f:
-        f.write(mhtml_content)
-
-    chtml_content = gernerate_page(contact_content_path, template_path, public_path)
-
-    with open(contact_index_path, "w", encoding="utf-8") as f:
-        f.write(chtml_content)
     
 def clear_directory(path):
     for item in os.listdir(path):
@@ -67,17 +37,19 @@ def clear_directory(path):
             os.rmdir(full_path)
 
 def copy_directory(src, dest):
-    for item in os.listdir(src):
-        src_path = os.path.join(src, item)
-        dest_path = os.path.join(dest, item)
+    if not os.path.exists(dest):
+        os.mkdir(dest)
 
-        if os.path.isfile(src_path):
-            shutil.copy(src_path, dest_path)
-        elif os.path.isdir(src_path):
-            os.makedirs(dest_path, exist_ok=True)
-            copy_directory(src_path, dest_path)
+    for filename in os.listdir(src):
+        from_path = os.path.join(src, filename)
+        dest_path = os.path.join(dest, filename)
+        print(f" * {from_path} -> {dest_path}")
+        if os.path.isfile(from_path):
+            shutil.copy(from_path, dest_path)
+        else:
+            copy_directory(from_path, dest_path)
 
-def gernerate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path):
     print(f'Generating page from {from_path} to {dest_path} using {template_path}')
     
     with open(from_path, 'r') as text:
@@ -91,8 +63,26 @@ def gernerate_page(from_path, template_path, dest_path):
 
     new_template = template.replace('{{ Title }}', title)
     new_template = new_template.replace('{{ Content }}', html)
+    html = html.replace('href="/', f'href="{base_path}')
+    html = html.replace('src="/', f'src="{base_path}')
 
-    return new_template
+    dest_dir_path = os.path.dirname(dest_path)
+    if dest_dir_path != "":
+        os.makedirs(dest_dir_path, exist_ok=True)
+
+    with open(dest_path, "w") as f:
+        f.write(new_template)
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    for filename in os.listdir(dir_path_content):
+        from_path = os.path.join(dir_path_content, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        if os.path.isfile(from_path):
+            dest_path = Path(dest_path).with_suffix(".html")
+            generate_page(from_path, template_path, dest_path)
+        else:
+            generate_pages_recursive(from_path, template_path, dest_path)
+
 
 
     
