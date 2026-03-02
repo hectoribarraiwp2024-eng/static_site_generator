@@ -9,10 +9,10 @@ dir_path_static = "./static"
 dir_path_docs = "./docs"
 dir_path_content = "./content"
 template_path = "./template.html"
-if sys.argv[0] == None:
+if sys.argv[1] == None:
     base_path = '/'
 else:
-    base_path = sys.argv[0]
+    base_path = sys.argv[1]
 
 def main():
     print("Deleting public directory...")
@@ -65,6 +65,7 @@ def generate_page(from_path, template_path, dest_path):
     template = template.replace('{{ Content }}', html)
     template = template.replace('href="/', f'href="{base_path}')
     template = template.replace('src="/', f'src="{base_path}')
+    print(base_path)
 
     dest_dir_path = os.path.dirname(dest_path)
     if dest_dir_path != "":
