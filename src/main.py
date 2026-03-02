@@ -61,17 +61,17 @@ def generate_page(from_path, template_path, dest_path):
     html = markdown_to_html_node(markdown).to_html()
     title = extract_title(markdown)
 
-    new_template = template.replace('{{ Title }}', title)
-    new_template = new_template.replace('{{ Content }}', html)
-    html = html.replace('href="/', f'href="{base_path}')
-    html = html.replace('src="/', f'src="{base_path}')
+    template = template.replace('{{ Title }}', title)
+    template = template.replace('{{ Content }}', html)
+    template = template.replace('href="/', f'href="{base_path}')
+    template = template.replace('src="/', f'src="{base_path}')
 
     dest_dir_path = os.path.dirname(dest_path)
     if dest_dir_path != "":
         os.makedirs(dest_dir_path, exist_ok=True)
 
     with open(dest_path, "w") as f:
-        f.write(new_template)
+        f.write(template)
 
 def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
     for filename in os.listdir(dir_path_content):
