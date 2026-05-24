@@ -1,7 +1,7 @@
 import unittest
-from htmlnode import HTMLNode
+from htmlnode import HTMLNode, LeafNode
 
-class TestTextNode(unittest.TestCase):
+class TestHTMLNode(unittest.TestCase):
     def test_props_to_html(self):
         node = HTMLNode(None, None, None, {
             "href": "https://www.google.com",
@@ -14,7 +14,7 @@ class TestTextNode(unittest.TestCase):
 
     def test_repr(self):
         node = HTMLNode("p", "hello", None, None)
-        string = "HtmlNode(tag=p, value=hello, children=None, props=None)"
+        string = "HTMLNode(tag=p, value=hello, children=None, props=None)"
         line = node.__repr__()
         
         self.assertEqual(line, string)
@@ -30,3 +30,26 @@ class TestTextNode(unittest.TestCase):
         })
 
         self.assertEqual(node, node2)
+
+class TestLeafNode(unittest.TestCase):
+    def test_leaf_to_html(self):
+        node = LeafNode("p", "Hello, world!")
+        self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
+
+    def test_repr(self):
+        node = LeafNode("p", "hello", None)
+        string = "LeafNode(tag=p, value=hello, props=None)"
+        line = node.__repr__()
+        
+        self.assertEqual(line, string)
+
+    def test_leaf_to_html_a(self):
+        node = LeafNode("a", "Click me!", {"href": "https://www.google.com"})
+        self.assertEqual(
+            node.to_html(),
+            '<a href="https://www.google.com">Click me!</a>',
+        )
+
+    def test_leaf_to_html_no_tag(self):
+        node = LeafNode(None, "Hello, world!")
+        self.assertEqual(node.to_html(), "Hello, world!")
